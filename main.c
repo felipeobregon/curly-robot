@@ -5,12 +5,16 @@
 #define MAXLEN 100
 #define MAXLINE 100
 
+char *mat[MAX][MAX];
+
+void printmat();
+
 int main(int argc, char **argv)
 {
     FILE *fp;
     char *getcell(char **);
-    char line[MAXLINE];
-    char *cellp, *ptr, *mat[MAX][MAX];
+    char line[MAXLINE], *ptr;
+    int y, x;
 
     if (argc == 1) {
         printf("Usage: csv FILE\n");
@@ -20,19 +24,29 @@ int main(int argc, char **argv)
             fprintf(stderr, "%s: could not open %s\n", argv[0], argv[1]);
             return 0;
         }
-        while (fgets(line, MAXLINE, fp)) { /* returns NULL on EOF or error */
-            ptr = line;
-            while ((cellp = getcell(&ptr)) != NULL)
-                printf("%10s|", cellp);
-            printf("\n");
-        }
+        for (y = 0; fgets(line, MAXLINE, fp) != NULL; y++)
+            for (x = 0, ptr = line; (mat[y][x] = getcell(&ptr)) != NULL; x++)
+                ;
+    }
+
+    printmat();
+}
+
+void printmat()
+{
+    int i, j;
+
+    for (i = 0; i < MAX; i++) {
+        for (j = 0; j < MAX; j++)
+            if (mat[i][j] != NULL)
+                printf("%4.4s ", mat[i][j]);
+        printf("\n");
     }
 }
 
-char cell[MAXLINE];
-
 char *getcell(char **ptr)
 {
+    static char cell[MAXLINE];
     char *cellp = cell;
 
     if (**ptr == '\n') /* end of line */
